@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="US-ASCII"?>
+
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd" [
+<!ENTITY RFC2119 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml">
+<!ENTITY RFC7643 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7643.xml">
+<!ENTITY RFC7644 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7644.xml">]>
+<?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
+
+<?rfc strict="yes" ?>
+<?rfc toc="no"?>
+<?rfc sortrefs="yes"?>
+<?rfc symrefs="yes"?>
+<?rfc compact="no" ?>
+<?rfc subcompact="no" ?>
+
+<rfc category="std" docName="draft-peterson-scim-cursor-pagination-00"
+updates="7643,7644" ipr="trust200902">
+
+  <front>
+
+    <title abbrev="SCIM Cursor Pagination">Cursor-based Pagination of SCIM Resources</title>
+
+    <author fullname="Matt Peterson" initials="M.P." role="editor" surname="Peterson">
+      <organization>Quest Software</organization>
+      <address>       
+       <email>matt.peterson@quest.com</email>
+     </address>
+    </author>  
+
+    <date year="2017" />
+
+    <!-- Meta-data Declarations -->
+
+    <area>General</area>
+
+    <workgroup>Internet Engineering Task Force</workgroup>
+
+    <keyword>SCIM</keyword>
+    <keyword>pagination</keyword>
+    <keyword>cursor</keyword>
+
+    <abstract>
+      <t>
+        The System for Cross-domain Identity Management (SCIM) protocol supports
+        the retrieval of core identity resources such as users and groups.
+        In order to avoid overwhelming the SCIM client or service provider,
+        SCIM defines index and count pagination query parameters that can
+        be used "page through" large numbers of resources. For some SCIM
+        service providers there are advantages in implementing cursor-based
+        pagination as an alternative to index-based pagination. This document
+        defines a simple extension to the SCIM protocol and core schema
+        to assure interoperability of SCIM implementations that need to
+        realize the advantages cursor-based pagination.
+      </t>
+    </abstract>
+  </front>
+
+  <middle>
+    <section title="Introduction">
+      <t>
+        <xref target="RFC7644">System for Cross-domain Identity Management (SCIM) protocol</xref>
+        supports the retrieval of core identity resources such as users
+        and groups. When many resources exist, two strategies may be employed
+        to help to avoid overwhelming the SCIM client and service provider.
+        First, SCIM supports the use of query filters. A query filter allows
+        the SCIM client to constrain the results returned to just the subset
+        of resources that are needed by the client. Second, SCIM supports
+        the ability to "page through" large result sets using index/count
+        pagination parameters.
+      </t>
+
+      <t>Not only is filtering an OPTIONAL capability,for service providers,
+        it is also a very common for SCIM clients to not to use a query
+        filter in order to intentionally to retrieve all resources. Therefore,
+        pagination of results (more so than filtering) is a primary scalability
+        mechanism for SCIM service providers.
+      </t>
+
+      <t>The two most common patterns for result pagination in HTTP-based
+        protocols are: index-based pagination, and cursor-based pagination.
+        Both approaches have advantages and disadvantages. For web applications
+        that also provide a application-specific Web API, the decision
+        for which result pagination approach to use in the Web API is often
+        dictated by the capabilities and optimizations of the underlying
+        application database technology, or by strongly held preference
+        of software developers.
+      </t>
+
+      <t>
+        Implementation of a SCIM service provider is often made as a companion
+        service along side an already existing application-specific Web
+        API. If cusor-based pagination is already used in an existing application,
+        it can be difficult to create a companion SCIM implementation that
+        uses existing application code paths. For these applications, the
+        mismatch in pagination approaches (index-based vs. cursor-based)
+        is an impediment to SCIM implementation.
+      </t>
+
+      <t>
+        This document defines a simple extension to the SCIM protocol and core
+        schema that adds support for cursor-based pagination. Support for
+        cursor-based pagination in SCIM encourages broader cross-application
+        identity management interoperiablity by encouraging SCIM implementations
+        for applications where cursor-based pagination is preferred.
+      </t>
+
+      <section title="Notational Conventions">
+        <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+          "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL"
+          in this document are to be interpreted as described in
+          <xref target="RFC2119">RFC 2119</xref>.
+        </t>
+      </section>
+    </section>
+
+    <section title="Query Parameters and Response Attributes">
+      <t>The following table describes the URL pagination parameters for cursor-based
+        pagination:
+      </t>
+
+      <texttable anchor="parameters" title="Pagination Request Parameters">
+        <ttcol align="left">Parameter</ttcol>
+        <ttcol align="left">Description</ttcol>
+        <ttcol align="left">Default</ttcol>
+
+        <c>cursor</c>
+        <c>The string value from the nextCursor attribute from the previous
+          result page. A cursor parameter SHOULD be omitted for the first
+          request of paginated query</c>
+        <c>None.</c>
+
+        <c>count</c>
+        <c>A positive integer. Specifies the desired maximum number of query
+          results per page, e.g., 10.</c>
+        <c>None. When specified, the service provider MUST NOT return more
+          results than specified, although it MAY return fewer results.</c>
+      </texttable>
+
+      <t>
+        The following table describes cursor-based pagination attributes returned
+        in a paged query response:
+      </t>
+
+      <texttable anchor="attributes" title="Pagination Response Elements">
+        <ttcol align="left">Element</ttcol>
+        <ttcol align="left">Description</ttcol>
+
+        <c>nextCursor</c>
+        <c>A cursor value string that MAY be used in a subsequent request
+          to obtain the next page of results. Service providers supporting
+          cursor-based pagination MUST include nextCursor in all paged query responses
+          except when returning the last page.  nextCursor is omitted from
+          a response only to indicate that there are no more result pages.</c>
+
+        <c>previousCursor</c>
+        <c>A cursor value string that MAY be used in a subsequent request
+          to obtain the previous page of results.  Use of previousCursor is
+          optional.  Service Providers that are unable to support a previousCursor
+          MAY omit previousCursor when sending paged query responses.</c>
+
+      </texttable>
+
+      <t>
+        For example, to retrieve the first 10 Users, omit the cursor and set the
+        count to 10:
+      </t>
+
+      <figure>
+        <artwork>
+          <![CDATA[
+   GET /Users?count=10
+   Host: example.com
+   Accept: application/scim+json
+   Authorization: Bearer U8YJcYYRMjbGeepD
+]]>
+        </artwork>
+      </figure>
+
+      <t>
+        The response to the query above returns metadata regarding pagination similar
+        to the following example (actual resources removed for brevity):
+      </t>
+
+      <figure>
+        <artwork>
+          <![CDATA[
+   {
+       "totalResults":100,
+       "nextCursor":"VZUTiyhEQJ94IR",
+       "schemas":["urn:ietf:params:scim:api:messages:2.0:ListResponse"],
+       "Resources":[{
+        ...
+       }]
+   }
+]]>
+        </artwork>
+      </figure>
+
+      <t>
+        Given the example above, to continue pagination, set the cursor to the
+        value of nextCursor ("VZUTiyhEQJ94IR") and re-fetch:
+      </t>
+
+      <figure>
+        <artwork>
+          <![CDATA[
+   GET /Users?cursor=VZUTiyhEQJ94I&count=10
+   Host: example.com
+   Accept: application/scim+json
+   Authorization: Bearer U8YJcYYRMjbGeepD
+]]>
+        </artwork>
+      </figure>
+
+      <t>If a Service Provider encounters an invalid cursor or count value (or 
+      other error condition), the Service Provider SHOULD return appropriate
+      HTTP response status code and JSON detail error response as defined in 
+      Section 3.1.2 of <xref target="RFC7644">RFC 7644</xref>      
+      </t>
+
+    </section>
+
+    <section title="Service Provider Configuration">
+
+      <t>
+        T
+        <xref target="RFC7644">The SCIM service provider configuration resource</xref> facilitates
+        discovery of SCIM service provider features. A SCIM Service provider
+        implementing cursor-based pagination SHOULD include the following
+        additional attribute in JSON document returned by the /ServiceProviderConfig
+        endpoint:
+      </t>
+
+      <t>
+        <list style="hanging">
+          <t hangText='pagination:'>
+            A complex type that indicates cursor-based pagination configuration options.
+            OPTIONAL.
+          </t>
+          <t>cursor A Boolean value specifying whether or not the cursor-based
+            pagination is supported. REQUIRED.
+          </t>          
+        </list>
+      </t>
+
+      <t>
+        Before using cursor-based pagination, a SCIM client SHOULD fetch the Service
+        Provider Configuration document from the SCIM service provider
+        and verify that cursor-based pagination is supported.
+      </t>
+
+      <t>
+        For example:
+      </t>
+      <figure>
+        <artwork>
+          <![CDATA[
+   GET /ServiceProviderConfig
+   Host: example.com
+   Accept: application/scim+json
+]]>
+        </artwork>
+      </figure>
+
+      <t>
+        A service provider supporting cursor-based pagination would return a document
+        similar to the following (portions of full Service Provider Configuration
+        Schema ommitted for brevity):
+      </t>
+      <figure>
+        <artwork>
+          <![CDATA[
+   {
+      "schemas": [
+         "urn:ietf:params:scim:schemas:core:2.0:ServiceProviderConfig"],
+
+      ...
+
+      "pagination": {
+         "cursor":true
+      },
+
+      ...
+   }
+]]>
+        </artwork>
+      </figure>
+
+    </section>
+
+  </middle>
+
+  <back>
+
+    <references title="Normative References">
+      &RFC2119; &RFC7643; &RFC7644;
+    </references>
+  </back>
+
+</rfc>
