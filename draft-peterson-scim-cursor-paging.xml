@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="US-ASCII"?>
 
-<!DOCTYPE rfc SYSTEM "rfc2629.dtd" [
+<!DOCTYPE rfc SYSTEM "https://tools.ietf.org/tools/templates/rfc2629.dtd" [
 <!ENTITY RFC2119 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml">
 <!ENTITY RFC7643 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7643.xml">
 <!ENTITY RFC7644 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7644.xml">]>
@@ -13,7 +13,7 @@
 <?rfc compact="no" ?>
 <?rfc subcompact="no" ?>
 
-<rfc category="std" docName="draft-peterson-scim-cursor-pagination-00"
+<rfc category="std" docName="draft-peterson-scim-cursor-pagination-01"
 updates="7643,7644" ipr="trust200902">
 
   <front>
@@ -27,7 +27,7 @@ updates="7643,7644" ipr="trust200902">
      </address>
     </author>  
 
-    <date year="2017" />
+    <date year="2021" />
 
     <!-- Meta-data Declarations -->
 
@@ -69,14 +69,16 @@ updates="7643,7644" ipr="trust200902">
         pagination parameters.
       </t>
 
-      <t>Not only is filtering an OPTIONAL capability,for service providers,
+      <t>
+        Not only is filtering an OPTIONAL capability for service providers,
         it is also a very common for SCIM clients to not to use a query
         filter in order to intentionally to retrieve all resources. Therefore,
         pagination of results (more so than filtering) is a primary scalability
         mechanism for SCIM service providers.
       </t>
 
-      <t>The two most common patterns for result pagination in HTTP-based
+      <t>
+        Two common patterns for result pagination in HTTP-based
         protocols are: index-based pagination, and cursor-based pagination.
         Both approaches have advantages and disadvantages. For web applications
         that also provide a application-specific Web API, the decision
@@ -89,7 +91,7 @@ updates="7643,7644" ipr="trust200902">
       <t>
         Implementation of a SCIM service provider is often made as a companion
         service along side an already existing application-specific Web
-        API. If cusor-based pagination is already used in an existing application,
+        API. If cursor-based pagination is already used in an existing application,
         it can be difficult to create a companion SCIM implementation that
         uses existing application code paths. For these applications, the
         mismatch in pagination approaches (index-based vs. cursor-based)
@@ -100,12 +102,13 @@ updates="7643,7644" ipr="trust200902">
         This document defines a simple extension to the SCIM protocol and core
         schema that adds support for cursor-based pagination. Support for
         cursor-based pagination in SCIM encourages broader cross-application
-        identity management interoperiablity by encouraging SCIM implementations
+        identity management interoperability by encouraging SCIM implementations
         for applications where cursor-based pagination is preferred.
       </t>
 
       <section title="Notational Conventions">
-        <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+        <t>
+          The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
           "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL"
           in this document are to be interpreted as described in
           <xref target="RFC2119">RFC 2119</xref>.
@@ -114,7 +117,8 @@ updates="7643,7644" ipr="trust200902">
     </section>
 
     <section title="Query Parameters and Response Attributes">
-      <t>The following table describes the URL pagination parameters for cursor-based
+      <t>
+        The following table describes the URL pagination parameters for cursor-based
         pagination:
       </t>
 
@@ -212,18 +216,18 @@ updates="7643,7644" ipr="trust200902">
         </artwork>
       </figure>
 
-      <t>If a Service Provider encounters an invalid cursor or count value (or 
-      other error condition), the Service Provider SHOULD return appropriate
-      HTTP response status code and JSON detail error response as defined in 
-      Section 3.1.2 of <xref target="RFC7644">RFC 7644</xref>      
+      <t>
+        If a Service Provider encounters an invalid cursor or count value (or 
+        other error condition), the Service Provider SHOULD return appropriate 
+        HTTP response status code and JSON detail error response as defined in 
+        Section 3.1.2 of <xref target="RFC7644">RFC 7644</xref>      
       </t>
 
     </section>
 
     <section title="Service Provider Configuration">
 
-      <t>
-        T
+      <t>        
         <xref target="RFC7644">The SCIM service provider configuration resource</xref> facilitates
         discovery of SCIM service provider features. A SCIM Service provider
         implementing cursor-based pagination SHOULD include the following
@@ -237,7 +241,8 @@ updates="7643,7644" ipr="trust200902">
             A complex type that indicates cursor-based pagination configuration options.
             OPTIONAL.
           </t>
-          <t>cursor A Boolean value specifying whether or not the cursor-based
+          <t hangText='cursor:'> 
+            A Boolean value specifying whether or not the cursor-based
             pagination is supported. REQUIRED.
           </t>          
         </list>
@@ -265,7 +270,7 @@ updates="7643,7644" ipr="trust200902">
       <t>
         A service provider supporting cursor-based pagination would return a document
         similar to the following (portions of full Service Provider Configuration
-        Schema ommitted for brevity):
+        Schema omitted for brevity):
       </t>
       <figure>
         <artwork>
@@ -292,8 +297,10 @@ updates="7643,7644" ipr="trust200902">
 
   <back>
 
-    <references title="Normative References">
-      &RFC2119; &RFC7643; &RFC7644;
+    <references title="Normative References">      
+      &RFC2119; 
+      &RFC7643; 
+      &RFC7644;
     </references>
   </back>
 
